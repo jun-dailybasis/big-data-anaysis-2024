@@ -4,11 +4,13 @@
 import pdb # python debugger 
 import datetime as dt 
 import requests
+import json 
 
 from urllib.parse import urlparse
 
 from dateutil.relativedelta import relativedelta
 from bs4 import BeautifulSoup
+from config import * 
 
 NAVER_URL = 'https://news.naver.com/main/list.naver?mode=LSD&mid=sec&sid1=101'
 NAVER_HEADERS = { 'User-Agent': 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0' }
@@ -155,7 +157,7 @@ def fetch_news_body(url):
         # (2) x['src'] -> src없으면 에러 반환
         # -> 존재할 때는 둘다 동일
 
-    image_urls = list[set(image_urls)]
+    image_urls = list(set(image_urls))
         #set을 통해 중복 제거 가능하다. 
 
 
@@ -179,9 +181,42 @@ def fetch_news_body(url):
         'updated_at' : updated_at.isoformat(),
         'body' : body_text
     } # 하나의 Dic로 묶어주자. 
-    
-    print(entry)
+
+    # print(entry)
     return entry
+
+
+def upload_news_doc(doc_id, body):
+    url = f"{OPENSEARCH_URL}/news/_doc/{doc_id}"
+
+    
+    resp = requests.put(
+        url = url, 
+        headers = OPENSEARCH_HEADERS,
+        auth = OPENSEARCH_AUTH,
+        data = json.dumps(body),
+    )
+
+    # print(resp.status_code)
+    # pdb.set_trace()
+    assert resp.status_code >= 200 and resp.status_code < 300
+
+    # pdb.set_trace()
+    pass
+
+def check_if_doc_existing(doc_id):
+    url = f"{OPENSEARCH_URL}/news/_doc/{doc_id}"
+
+    resp = requests.get(
+        url = url, 
+        auth =  OPENSEARCH_AUTH,
+
+    )
+    print(resp.status_code)
+
+    # pdb.set_trace()
+    
+    return resp.status_code == 200
 
 def fetch_news_list_for_date(date):
 
@@ -198,12 +233,19 @@ def fetch_news_list_for_date(date):
 
             print(f"[{doc_id}] {title}")
 
+            # if check_if_doc_existing(doc_id):
+                # continue
+
             body = fetch_news_body(url)
 
-            pdb.set_trace()
+            upload_news_doc(doc_id, body)
 
 if __name__ == '__main__':
     base_date = dt.datetime(2024, 9, 1)
+    
+    #[과제]
+    # 9월 1일 부터 10을치 수집 
+
 
     for d in range(1):
         date = base_date + relativedelta(days = d)
