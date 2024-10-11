@@ -126,7 +126,8 @@ def fetch_news_body(url):
         publisher = tokens[0].strip() #strip: 빈공간 없애줘!  , # 언론사 정보 꺼내오기(Ex, 이데일리) 
 
     else:
-        raise RuntimeError() #문제가 있을 때 바로 죽는게 좋다. 예외처리. 
+        # raise RuntimeError() #문제가 있을 때 바로 죽는게 좋다. 예외처리. 
+        return None
     
     # 2024-09-01 23:55:07 찾기
     # <span class="media_end_head_info_datestamp_time _ARTICLE_DATE_TIME" data-date-time="2024-09-01 23:55:07" data-date-time-age-in-minutes="44381">2024.09.01. 오후 11:55</span>
@@ -197,7 +198,7 @@ def upload_news_doc(doc_id, body):
         data = json.dumps(body),
     )
 
-    # print(resp.status_code)
+    print(resp.status_code)
     # pdb.set_trace()
     assert resp.status_code >= 200 and resp.status_code < 300
 
@@ -212,7 +213,7 @@ def check_if_doc_existing(doc_id):
         auth =  OPENSEARCH_AUTH,
 
     )
-    print(resp.status_code)
+    # print(resp.status_code)
 
     # pdb.set_trace()
     
@@ -229,19 +230,21 @@ def fetch_news_list_for_date(date):
     for page in range(1, last_page + 1):  
         items = fetch_news_list(datestr, page)
 
-        for doc_id, title, url in items: #items에는 신문 기사의 목록(List)가 담겨 있다.  -> 튜플 (entry)
-
+        for doc_id, title, url in items:
             print(f"[{doc_id}] {title}")
 
-            # if check_if_doc_existing(doc_id):
-                # continue
+            if check_if_doc_existing(doc_id):
+                continue
 
             body = fetch_news_body(url)
+
+            if not body:
+                continue
 
             upload_news_doc(doc_id, body)
 
 if __name__ == '__main__':
-    base_date = dt.datetime(2024, 9, 1)
+    base_date = dt.datetime(2024, 9, 10)
     
     #[과제]
     # 9월 1일 부터 10을치 수집 
