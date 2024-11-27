@@ -1,0 +1,35 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: jydatabig
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: news-api-server
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linu
+
+provider:
+  name: aws
+  runtime: python3.12
+  region: ap-northeast-2
+  
+package:
+  exclude:
+    - node_modules/**
+    - venv/**
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - httpApi:
+          path: /
+          method: get
+  news_trends:
+    handler: services.news_trends.main
+    events:
+      - httpApi:
+          path: /news-trends
+          method: get
