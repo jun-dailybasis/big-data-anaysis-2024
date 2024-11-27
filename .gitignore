@@ -4,6 +4,8 @@ news-crawler/config.py
 __pycache__/
 *.py[cod]
 *$py.class
+node_modules/
+node_modules/.bin/
 
 # C extensions
 *.so
