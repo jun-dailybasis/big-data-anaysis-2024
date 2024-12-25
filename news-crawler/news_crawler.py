@@ -1,6 +1,5 @@
-### 20249184 방준영 DFMBA 6기
+### 20249184 방준영 DFMBA 6기 [네이버 뉴스크롤러]
 
-# https://news.naver.com/main/list.nhn?mode=LSD&mid=sec&sid1=101
 import pdb # python debugger 
 import datetime as dt 
 import requests
@@ -244,13 +243,13 @@ def fetch_news_list_for_date(date):
             upload_news_doc(doc_id, body)
 
 if __name__ == '__main__':
-    base_date = dt.datetime(2024, 9, 7)
+    base_date = dt.datetime(2024, 9, 20)
     
     #[과제]
     # 9월 1일 부터 10을치 수집 
 
 
-    for d in range(3):
+    for d in range(1):
         date = base_date + relativedelta(days = d)
 
         fetch_news_list_for_date(date) #F12로 하면 메소드 안으로 들어감
